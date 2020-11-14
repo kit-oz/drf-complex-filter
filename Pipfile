@@ -8,6 +8,4 @@ django = "*"
 django-rest-framework = "*"
 
 [dev-packages]
-
-[requires]
-python_version = "3.8"
+pbr = "*"
