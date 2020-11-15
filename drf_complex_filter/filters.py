@@ -11,7 +11,7 @@ class ComplexQueryFilter(BaseFilterBackend):
         filter_string = request.query_params.get("filters", None)
         try:
             filters = json.loads(filter_string)
-        except json.decoder.JSONDecodeError:
+        except (TypeError, json.decoder.JSONDecodeError):
             filters = None
         return filters
 
