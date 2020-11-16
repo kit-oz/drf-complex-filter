@@ -8,10 +8,10 @@ OPERATORS = {
     ">=": lambda k, v: Q(**{"{}__gte".format(k): v}),
     "<": lambda k, v: Q(**{"{}__lt".format(k): v}),
     "<=": lambda k, v: Q(**{"{}__lte".format(k): v}),
-    "cont": lambda k, v: Q(**{"{}__contains".format(k): v}),
-    "icnt": lambda k, v: Q(**{"{}__icontains".format(k): v}),
-    "ncnt": lambda k, v: ~Q(**{"{}__contains".format(k): v}),
+    "*": lambda k, v: Q(**{"{}__icontains".format(k): v}),
     "!": lambda k, v: ~Q(**{"{}__icontains".format(k): v}),
+    "cont": lambda k, v: Q(**{"{}__contains".format(k): v}),
+    "ncnt": lambda k, v: ~Q(**{"{}__contains".format(k): v}),
 }
 
 
