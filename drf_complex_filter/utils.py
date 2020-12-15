@@ -1,3 +1,4 @@
+import json
 from django.db.models import Q
 
 
@@ -13,6 +14,14 @@ OPERATORS = {
     "cont": lambda k, v: Q(**{"{}__contains".format(k): v}),
     "ncnt": lambda k, v: ~Q(**{"{}__contains".format(k): v}),
 }
+
+
+def parse_filter_string(filter_string: str) -> dict:
+    try:
+        filters = json.loads(filter_string)
+    except (TypeError, json.decoder.JSONDecodeError):
+        filters = None
+    return filters
 
 
 def generate_query_from_dict(filters: dict) -> Q:
