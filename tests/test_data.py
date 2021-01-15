@@ -5,7 +5,7 @@ from .fixtures import RECORDS
 
 serialized_data = TestCaseModelSerializer(RECORDS, many=True).data
 
-TEST_DATA = [
+TEST_COMMON = [
     ({"filters": ""},
      serialized_data),
 

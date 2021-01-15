@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from datetime import date, datetime
 
 RECORDS = [

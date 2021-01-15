@@ -15,3 +15,24 @@ class CommonComparison:
             "in": lambda f, v, r=None: Q(**{"{}__in".format(f): v}),
             "not_in": lambda f, v, r=None: ~Q(**{"{}__in".format(f): v}),
         }
+
+
+class DynamicComparison:
+    def get_operators(self):
+        return {
+            "me": self.current_user,
+            "not_me": self.not_current_user,
+        }
+
+    @staticmethod
+    def current_user(field, value=None, request=None):
+        print("REQUEST", request.user)
+        if not request or not request.user:
+            return Q(**{"{}__isnull".format(field): True})
+        return Q(**{"{}".format(field): request.user.id})
+
+    @staticmethod
+    def not_current_user(field, value=None, request=None):
+        if not request or not request.user:
+            return Q(**{"{}__isnull".format(field): False})
+        return ~Q(**{"{}".format(field): request.user.id})

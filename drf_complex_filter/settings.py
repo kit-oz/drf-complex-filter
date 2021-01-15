@@ -3,6 +3,7 @@ from django.conf import settings
 DEFAULTS = {
     "COMPARISON_CLASSES": [
         "drf_complex_filter.comparisons.CommonComparison",
+        "drf_complex_filter.comparisons.DynamicComparison",
     ],
     "QUERY_PARAMETER": "filters",
 }

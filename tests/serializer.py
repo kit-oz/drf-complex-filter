@@ -14,4 +14,5 @@ class TestCaseModelSerializer(serializers.ModelSerializer):
             "float",
             "date",
             "datetime",
+            "user",
         )

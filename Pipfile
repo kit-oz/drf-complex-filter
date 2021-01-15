@@ -9,3 +9,5 @@ djangorestframework = "*"
 
 [dev-packages]
 pbr = "*"
+mixer = "*"
+parameterized = "*"
