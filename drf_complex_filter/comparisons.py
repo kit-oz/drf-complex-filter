@@ -26,7 +26,6 @@ class DynamicComparison:
 
     @staticmethod
     def current_user(field, value=None, request=None):
-        print("REQUEST", request.user)
         if not request or not request.user:
             return Q(**{"{}__isnull".format(field): True})
         return Q(**{"{}".format(field): request.user.id})
