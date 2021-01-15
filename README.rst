@@ -79,12 +79,12 @@ Operator label                 Query operator
 =============================  ==============
 Is                             =
 Is not                         !=
+Case-insensitive contains      \*
+Case-insensitive not contains  !
 Greater                        >
 Greater than or is             >=
 Less                           <
 Less than or is                <=
-Case-insensitive contains      \*
-Case-insensitive not contains  !
-Case-sensitive contains        cnt
-Case-sensitive not contains    ncnt
+Value in list                  in
+Value not in list              not_in
 =============================  ==============
