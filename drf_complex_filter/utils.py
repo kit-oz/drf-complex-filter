@@ -32,8 +32,9 @@ class ComplexFilter:
         if filter_type == "operator":
             condition = filters["data"]
             operator = condition["operator"]
+            attribute = condition["attribute"].replace(".", "__")
             if operator in self.comparisons:
-                query = self.comparisons[operator](condition["attribute"],
+                query = self.comparisons[operator](attribute,
                                                    condition["value"],
                                                    request)
         elif filter_type == "and":
