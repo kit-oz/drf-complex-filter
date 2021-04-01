@@ -46,14 +46,14 @@ TEST_COMMON = [
                                       "operator": "*",
                                       "value": "P1"}})},
      [r for r in serialized_data
-      if r["group1"] == "GROUP1" or r["group1"] == "group1"]),
+      if (r["group1"] == "GROUP1" or r["group1"] == "group1")]),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
                                       "operator": "!",
                                       "value": "P1"}})},
      [r for r in serialized_data
-      if r["group1"] != "GROUP1" and r["group1"] != "group1"]),
+      if (r["group1"] != "GROUP1" and r["group1"] != "group1")]),
 
     # IN ARRAY AND NOT IN ARRAY
     ({"filters": json.dumps({"type": "operator",
@@ -67,14 +67,14 @@ TEST_COMMON = [
                                       "operator": "in",
                                       "value": ["GROUP1", "group1"]}})},
      [r for r in serialized_data
-      if r["group1"] == "GROUP1" or r["group1"] == "group1"]),
+      if (r["group1"] == "GROUP1" or r["group1"] == "group1")]),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
                                       "operator": "not_in",
                                       "value": ["GROUP1", "group1"]}})},
      [r for r in serialized_data
-      if r["group1"] != "GROUP1" and r["group1"] != "group1"]),
+      if (r["group1"] != "GROUP1" and r["group1"] != "group1")]),
 
     # MATH COMPARISON OPERATORS
     ({"filters": json.dumps({"type": "operator",
@@ -130,7 +130,7 @@ TEST_COMMON = [
                                                 "operator": "=",
                                                 "value": "GROUP1"}}]})},
      [r for r in serialized_data
-      if r["group1"] == "GROUP3" and r["group2"] == "GROUP1"]),
+      if (r["group1"] == "GROUP3" and r["group2"] == "GROUP1")]),
 
     # LOGICAL OR GROUP
     ({"filters": json.dumps({"type": "or",
@@ -143,7 +143,7 @@ TEST_COMMON = [
                                                 "operator": "=",
                                                 "value": "GROUP1"}}]})},
      [r for r in serialized_data
-      if r["group1"] == "GROUP3" or r["group2"] == "GROUP1"]),
+      if (r["group1"] == "GROUP3" or r["group2"] == "GROUP1")]),
 
     # NESTED GROUPS
     ({"filters": json.dumps({"type": "and",
@@ -163,7 +163,19 @@ TEST_COMMON = [
                                                      "value": "GROUP2"}}
                                        ]}]})},
      [r for r in serialized_data
-      if r["group1"] == "GROUP3"
-      and (r["group2"] == "GROUP1" or r["group2"] == "GROUP2")]),
+      if (r["group1"] == "GROUP3"
+      and (r["group2"] == "GROUP1" or r["group2"] == "GROUP2"))]),
 
+    # EQUAL CHECK ON EMPTY VALUE
+    ({"filters": json.dumps({"type": "operator",
+                             "data": {"attribute": "with_empty",
+                                      "operator": "=",
+                                      "value": ""}})},
+     [r for r in serialized_data if (r["with_empty"] == None or r["with_empty"] == "")]),
+
+    ({"filters": json.dumps({"type": "operator",
+                             "data": {"attribute": "with_empty",
+                                      "operator": "!=",
+                                      "value": ""}})},
+     [r for r in serialized_data if (r["with_empty"] != None and r["with_empty"] != "")]),
 ]

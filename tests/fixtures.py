@@ -4,6 +4,7 @@ from datetime import date, datetime
 RECORDS = [
     {"group1": "GROUP2",
      "group2": "GROUP1",
+     "with_empty": "filled",
      "integer": 0,
      "float": 0,
      "date": date(2020, 11, 2),
@@ -18,6 +19,7 @@ RECORDS = [
 
     {"group1": "group1",
      "group2": "GROUP1",
+     "with_empty": "",
      "integer": 2,
      "float": 2,
      "date": date(2020, 11, 1),
@@ -25,6 +27,7 @@ RECORDS = [
 
     {"group1": "GROUP3",
      "group2": "GROUP2",
+     "with_empty": "filled",
      "integer": 3,
      "float": 3,
      "date": date(2020, 10, 31),
@@ -39,6 +42,7 @@ RECORDS = [
 
     {"group1": "GROUP3",
      "group2": "GROUP3",
+     "with_empty": "filled",
      "integer": 5,
      "float": 5,
      "date": date(2020, 10, 1),

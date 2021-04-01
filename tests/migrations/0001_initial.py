@@ -17,6 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('group1', models.CharField(max_length=10)),
                 ('group2', models.CharField(max_length=10)),
+                ('with_empty', models.CharField(max_length=10, blank=True, null=True)),
                 ('integer', models.IntegerField()),
                 ('float', models.FloatField()),
                 ('date', models.DateField()),

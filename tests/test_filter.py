@@ -12,8 +12,7 @@ class CommonFilterTests(APITestCase):
 
     def setUp(self):
         for record in RECORDS:
-            record = TestCaseModel(**record)
-            record.save()
+            TestCaseModel(**record).save()
 
     @parameterized.expand(TEST_COMMON)
     def test_common_filter(self, query, expected_response):

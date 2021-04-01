@@ -4,17 +4,31 @@ from django.db.models import Q
 class CommonComparison:
     def get_operators(self):
         return {
-            "=": lambda f, v, r=None: Q(**{"{}".format(f): v}),
-            "!=": lambda f, v, r=None: ~Q(**{"{}".format(f): v}),
-            "*": lambda f, v, r=None: Q(**{"{}__icontains".format(f): v}),
-            "!": lambda f, v, r=None: ~Q(**{"{}__icontains".format(f): v}),
-            ">": lambda f, v, r=None: Q(**{"{}__gt".format(f): v}),
-            ">=": lambda f, v, r=None: Q(**{"{}__gte".format(f): v}),
-            "<": lambda f, v, r=None: Q(**{"{}__lt".format(f): v}),
-            "<=": lambda f, v, r=None: Q(**{"{}__lte".format(f): v}),
-            "in": lambda f, v, r=None: Q(**{"{}__in".format(f): v}),
-            "not_in": lambda f, v, r=None: ~Q(**{"{}__in".format(f): v}),
+            "=": self.equal,
+            "!=": self.not_equal,
+            "*": lambda f, v, r=None: Q(**{f"{f}__icontains": v}),
+            "!": lambda f, v, r=None: ~Q(**{f"{f}__icontains": v}),
+            ">": lambda f, v, r=None: Q(**{f"{f}__gt": v}),
+            ">=": lambda f, v, r=None: Q(**{f"{f}__gte": v}),
+            "<": lambda f, v, r=None: Q(**{f"{f}__lt": v}),
+            "<=": lambda f, v, r=None: Q(**{f"{f}__lte": v}),
+            "in": lambda f, v, r=None: Q(**{f"{f}__in": v}),
+            "not_in": lambda f, v, r=None: ~Q(**{f"{f}__in": v}),
         }
+
+    @staticmethod
+    def equal(field, value=None, request=None):
+        if not value:
+            print("EQUAL GET EMPTY VALUE");
+            return Q(**{f"{field}__isnull": True}) | Q(**{f"{field}__exact": ""})
+        return Q(**{f"{field}": value})
+
+    @staticmethod
+    def not_equal(field, value=None, request=None):
+        if not value:
+            print("NOT EQUAL GET EMPTY VALUE");
+            return Q(**{f"{field}__isnull": False}) & ~Q(**{f"{field}": ""})
+        return ~Q(**{f"{field}": value})
 
 
 class DynamicComparison:

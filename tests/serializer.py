@@ -10,6 +10,7 @@ class TestCaseModelSerializer(serializers.ModelSerializer):
         fields = (
             "group1",
             "group2",
+            "with_empty",
             "integer",
             "float",
             "date",
