@@ -164,18 +164,18 @@ TEST_COMMON = [
                                        ]}]})},
      [r for r in serialized_data
       if (r["group1"] == "GROUP3"
-      and (r["group2"] == "GROUP1" or r["group2"] == "GROUP2"))]),
+          and (r["group2"] == "GROUP1" or r["group2"] == "GROUP2"))]),
 
     # EQUAL CHECK ON EMPTY VALUE
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "with_empty",
                                       "operator": "=",
                                       "value": ""}})},
-     [r for r in serialized_data if (r["with_empty"] == None or r["with_empty"] == "")]),
+     [r for r in serialized_data if (r["with_empty"] is None or r["with_empty"] == "")]),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "with_empty",
                                       "operator": "!=",
                                       "value": ""}})},
-     [r for r in serialized_data if (r["with_empty"] != None and r["with_empty"] != "")]),
+     [r for r in serialized_data if (r["with_empty"] is not None and r["with_empty"] != "")]),
 ]
