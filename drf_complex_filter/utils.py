@@ -1,3 +1,4 @@
+from typing import Optional
 import json
 from django.db.models import Q
 from django.utils.module_loading import import_string
@@ -12,7 +13,7 @@ class ComplexFilter:
             comparison_module = import_string(comparison_path)()
             self.comparisons.update(comparison_module.get_operators())
 
-    def generate_from_string(self, filter_string: str, request=None) -> (Q, None):
+    def generate_from_string(self, filter_string: str, request=None) -> Optional[Q]:
         try:
             filters = json.loads(filter_string)
         except (TypeError, json.decoder.JSONDecodeError):
@@ -32,11 +33,10 @@ class ComplexFilter:
         if filter_type == "operator":
             condition = filters["data"]
             operator = condition["operator"]
-            attribute = condition["attribute"].replace(".", "__")
             if operator in self.comparisons:
-                query = self.comparisons[operator](attribute,
-                                                   condition["value"],
-                                                   request)
+                attribute = condition["attribute"].replace(".", "__")
+                value = condition["value"] if "value" in condition else None
+                query = self.comparisons[operator](attribute, value, request)
         elif filter_type == "and":
             for filter_data in filters["data"]:
                 sub_query = self.generate_query_from_dict(filter_data, request)
