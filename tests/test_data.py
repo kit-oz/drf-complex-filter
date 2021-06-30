@@ -58,20 +58,20 @@ TEST_COMMON = [
     # IN ARRAY AND NOT IN ARRAY
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
-                                      "operator": "in",
+                                      "operator": "IN",
                                       "value": ["unknown string"]}})},
      []),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
-                                      "operator": "in",
+                                      "operator": "IN",
                                       "value": ["GROUP1", "group1"]}})},
      [r for r in serialized_data
       if (r["group1"] == "GROUP1" or r["group1"] == "group1")]),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
-                                      "operator": "not_in",
+                                      "operator": "NOTIN",
                                       "value": ["GROUP1", "group1"]}})},
      [r for r in serialized_data
       if (r["group1"] != "GROUP1" and r["group1"] != "group1")]),
@@ -177,5 +177,91 @@ TEST_COMMON = [
                              "data": {"attribute": "with_empty",
                                       "operator": "!=",
                                       "value": ""}})},
+     [r for r in serialized_data if (r["with_empty"] is not None and r["with_empty"] != "")]),
+
+    ##########################################
+    # TESTS FOR NEW SYNTAX
+    ##########################################
+
+    # BASE CHECK FOR ALL FIELD TYPES
+    ({"filters": "group1=GROUP1"},
+     [r for r in serialized_data if r["group1"] == "GROUP1"]),
+
+    ({"filters": "integer=2"},
+     [r for r in serialized_data if r["integer"] == 2]),
+
+    ({"filters": "float=2"},
+     [r for r in serialized_data if r["float"] == 2]),
+
+    ({"filters": "date=2020-11-01"},
+     [r for r in serialized_data if r["date"] == "2020-11-01"]),
+
+    ({"filters": "datetime=2020-10-31T00:03:00"},
+     [r for r in serialized_data if r["datetime"] == "2020-10-31T00:03:00"]),
+
+    # CONTAINS AND NOT CONTAINS FILTERS
+    ({"filters": "group1*P1"},
+     [r for r in serialized_data
+      if (r["group1"] == "GROUP1" or r["group1"] == "group1")]),
+
+    ({"filters": "group1!P1"},
+     [r for r in serialized_data
+      if (r["group1"] != "GROUP1" and r["group1"] != "group1")]),
+
+    # IN ARRAY AND NOT IN ARRAY
+    ({"filters": "group1INunknown string"},
+     []),
+
+    ({"filters": "group1INGROUP1,group1"},
+     [r for r in serialized_data
+      if (r["group1"] == "GROUP1" or r["group1"] == "group1")]),
+
+    ({"filters": "group1NOTINGROUP1,group1"},
+     [r for r in serialized_data
+      if (r["group1"] != "GROUP1" and r["group1"] != "group1")]),
+
+    # MATH COMPARISON OPERATORS
+    ({"filters": "integer!=2"},
+     [r for r in serialized_data if r["integer"] != 2]),
+
+    ({"filters": "integer*2"},
+     [r for r in serialized_data if r["integer"] == 2]),
+
+    ({"filters": "integer!2"},
+     [r for r in serialized_data if r["integer"] != 2]),
+
+    ({"filters": "integer>2"},
+     [r for r in serialized_data if r["integer"] > 2]),
+
+    ({"filters": "integer>=2"},
+     [r for r in serialized_data if r["integer"] >= 2]),
+
+    ({"filters": "integer<2"},
+     [r for r in serialized_data if r["integer"] < 2]),
+
+    ({"filters": "integer<=2"},
+     [r for r in serialized_data if r["integer"] <= 2]),
+
+    # LOGICAL AND GROUP
+    ({"filters": "group1=GROUP3^ANDgroup2=GROUP1"},
+     [r for r in serialized_data
+      if (r["group1"] == "GROUP3" and r["group2"] == "GROUP1")]),
+
+    # LOGICAL OR GROUP
+    ({"filters": "group1=GROUP3^ORgroup2=GROUP1"},
+     [r for r in serialized_data
+      if (r["group1"] == "GROUP3" or r["group2"] == "GROUP1")]),
+
+    # NESTED GROUPS
+    ({"filters": "group1=GROUP3^ANDgroup2=GROUP1^ORgroup2=GROUP2"},
+     [r for r in serialized_data
+      if (r["group1"] == "GROUP3"
+          and (r["group2"] == "GROUP1" or r["group2"] == "GROUP2"))]),
+
+    # EQUAL CHECK ON EMPTY VALUE
+    ({"filters": "with_empty="},
+     [r for r in serialized_data if (r["with_empty"] is None or r["with_empty"] == "")]),
+
+    ({"filters": "with_empty!="},
      [r for r in serialized_data if (r["with_empty"] is not None and r["with_empty"] != "")]),
 ]

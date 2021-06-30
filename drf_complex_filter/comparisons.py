@@ -8,12 +8,12 @@ class CommonComparison:
             "!=": self.not_equal,
             "*": lambda f, v, r=None: Q(**{f"{f}__icontains": v}),
             "!": lambda f, v, r=None: ~Q(**{f"{f}__icontains": v}),
-            ">": lambda f, v, r=None: Q(**{f"{f}__gt": v}),
             ">=": lambda f, v, r=None: Q(**{f"{f}__gte": v}),
-            "<": lambda f, v, r=None: Q(**{f"{f}__lt": v}),
+            ">": lambda f, v, r=None: Q(**{f"{f}__gt": v}),
             "<=": lambda f, v, r=None: Q(**{f"{f}__lte": v}),
-            "in": lambda f, v, r=None: Q(**{f"{f}__in": v}),
-            "not_in": lambda f, v, r=None: ~Q(**{f"{f}__in": v}),
+            "<": lambda f, v, r=None: Q(**{f"{f}__lt": v}),
+            "NOTIN": lambda f, v, r=None: ~Q(**{f"{f}__in": v.split(",") if type(v) is str else v}),
+            "IN": lambda f, v, r=None: Q(**{f"{f}__in": v.split(",") if type(v) is str else v}),
         }
 
     @staticmethod
@@ -32,8 +32,8 @@ class CommonComparison:
 class DynamicComparison:
     def get_operators(self):
         return {
-            "me": self.current_user,
-            "not_me": self.not_current_user,
+            "ISME": self.current_user,
+            "ISNOTME": self.not_current_user,
         }
 
     @staticmethod

@@ -1,4 +1,3 @@
-import json
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -20,9 +19,7 @@ class DynaimcFilterTests(APITestCase):
         self.user = user1
 
     def test_me(self):
-        query = {
-            "filters": json.dumps({"type": "operator", "data": {"attribute": "user", "operator": "me"}})
-        }
+        query = {"filters": "userISME"}
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.URL, query, format="json")
         self.assertEqual(
@@ -32,11 +29,7 @@ class DynaimcFilterTests(APITestCase):
         self.assertEqual(response.data[0]["user"], self.user.id)
 
     def test_not_me(self):
-        query = {
-            "filters": json.dumps(
-                {"type": "operator", "data": {"attribute": "user", "operator": "not_me"}}
-            )
-        }
+        query = {"filters": "userISNOTME"}
         self.client.force_authenticate(user=self.user)
         response = self.client.get(self.URL, query, format="json")
         self.assertEqual(
@@ -47,9 +40,7 @@ class DynaimcFilterTests(APITestCase):
             self.assertNotEqual(result["user"], self.user.id)
 
     def test_me_unauthenticated(self):
-        query = {
-            "filters": json.dumps({"type": "operator", "data": {"attribute": "user", "operator": "me", "value": ""}})
-        }
+        query = {"filters": "userISME"}
         response = self.client.get(self.URL, query, format="json")
         self.assertEqual(
             response.status_code, status.HTTP_200_OK, msg=f"Failed on: {query}" f"\nResponse: {response.data}"
@@ -58,11 +49,7 @@ class DynaimcFilterTests(APITestCase):
         self.assertIsNone(response.data[0]["user"])
 
     def test_not_me_unauthenticated(self):
-        query = {
-            "filters": json.dumps(
-                {"type": "operator", "data": {"attribute": "user", "operator": "not_me", "value": ""}}
-            )
-        }
+        query = {"filters": "userISNOTME"}
         response = self.client.get(self.URL, query, format="json")
         self.assertEqual(
             response.status_code, status.HTTP_200_OK, msg=f"Failed on: {query}" f"\nResponse: {response.data}"
