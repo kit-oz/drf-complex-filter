@@ -178,4 +178,17 @@ TEST_COMMON = [
                                       "operator": "!=",
                                       "value": ""}})},
      [r for r in serialized_data if (r["with_empty"] is not None and r["with_empty"] != "")]),
+
+    # BOOLEAN FIELDS
+    ({"filters": json.dumps({"type": "operator",
+                             "data": {"attribute": "boolean",
+                                      "operator": "=",
+                                      "value": False}})},
+     [r for r in serialized_data if not r["boolean"]]),
+
+    ({"filters": json.dumps({"type": "operator",
+                             "data": {"attribute": "boolean",
+                                      "operator": "!=",
+                                      "value": False}})},
+     [r for r in serialized_data if r["boolean"]]),
 ]

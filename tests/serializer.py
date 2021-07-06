@@ -16,4 +16,5 @@ class TestCaseModelSerializer(serializers.ModelSerializer):
             "date",
             "datetime",
             "user",
+            "boolean"
         )

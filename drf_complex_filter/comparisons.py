@@ -18,13 +18,13 @@ class CommonComparison:
 
     @staticmethod
     def equal(field, value=None, request=None):
-        if not value:
+        if value == "":
             return Q(**{f"{field}__isnull": True}) | Q(**{f"{field}__exact": ""})
         return Q(**{f"{field}": value})
 
     @staticmethod
     def not_equal(field, value=None, request=None):
-        if not value:
+        if value == "":
             return Q(**{f"{field}__isnull": False}) & ~Q(**{f"{field}": ""})
         return ~Q(**{f"{field}": value})
 

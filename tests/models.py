@@ -15,3 +15,4 @@ class TestCaseModel(models.Model):
         blank=True,
         null=True,
     )
+    boolean = models.BooleanField()
