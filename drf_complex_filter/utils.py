@@ -1,13 +1,15 @@
 from typing import Optional
 import json
 from django.db.models import Q
+from django.db.models import Model
 from django.utils.module_loading import import_string
 
 from drf_complex_filter.settings import filter_settings
 
 
 class ComplexFilter:
-    def __init__(self):
+    def __init__(self, model: Model = None):
+        self.model = model
         self.comparisons = {}
         for comparison_path in filter_settings["COMPARISON_CLASSES"]:
             comparison_module = import_string(comparison_path)()
@@ -29,6 +31,7 @@ class ComplexFilter:
         :return: Django Q object
         """
         query = None
+        annotation = {}
         filter_type = filters["type"]
         if filter_type == "operator":
             condition = filters["data"]
@@ -36,15 +39,18 @@ class ComplexFilter:
             if operator in self.comparisons:
                 attribute = condition["attribute"].replace(".", "__")
                 value = condition["value"] if "value" in condition else None
-                query = self.comparisons[operator](attribute, value, request)
+                result = self.comparisons[operator](attribute, value, request, self.model)
+                (query, annotation) = result if isinstance(result, tuple) else (result, {})
         elif filter_type == "and":
             for filter_data in filters["data"]:
-                sub_query = self.generate_query_from_dict(filter_data, request)
+                sub_query, sub_annotation = self.generate_query_from_dict(filter_data, request)
                 if sub_query:
                     query = query & sub_query if query else sub_query
+                    annotation.update(sub_annotation)
         elif filter_type == "or":
             for filter_data in filters["data"]:
-                sub_query = self.generate_query_from_dict(filter_data, request)
+                sub_query, sub_annotation = self.generate_query_from_dict(filter_data, request)
                 if sub_query:
                     query = query | sub_query if query else sub_query
-        return query
+                    annotation.update(sub_annotation)
+        return query, annotation

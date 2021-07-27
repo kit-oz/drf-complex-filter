@@ -6,6 +6,7 @@ DEFAULTS = {
         "drf_complex_filter.comparisons.DynamicComparison",
     ],
     "QUERY_PARAMETER": "filters",
+    "DEFAULT_LOOKUP_FIELD": None,
 }
 
 COMPLEX_FILTER_SETTINGS = getattr(settings, "COMPLEX_FILTER_SETTINGS", {})

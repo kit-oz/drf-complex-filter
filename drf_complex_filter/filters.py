@@ -11,9 +11,9 @@ class ComplexQueryFilter(BaseFilterBackend):
         if not filter_string:
             return queryset
 
-        complex_filter = ComplexFilter()
-        query = complex_filter.generate_from_string(filter_string, request)
+        complex_filter = ComplexFilter(model=queryset.model)
+        query, annotation = complex_filter.generate_from_string(filter_string, request)
         if query:
-            queryset = queryset.filter(query)
+            queryset = queryset.annotate(**annotation).filter(query)
 
         return queryset
