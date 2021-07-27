@@ -12,12 +12,12 @@ class CommonComparison:
         return {
             "=": self.equal,
             "!=": self.not_equal,
-            "*": lambda f, v, r=None, m=None: self.getQObject(f, v, r, m, "icontains"),
-            "!": lambda f, v, r=None, m=None: ~self.getQObject(f, v, r, m, "icontains"),
-            ">": lambda f, v, r=None, m=None: self.getQObject(f, v, r, m, "gt"),
-            ">=": lambda f, v, r=None, m=None: self.getQObject(f, v, r, m, "gte"),
-            "<": lambda f, v, r=None, m=None: self.getQObject(f, v, r, m, "lt"),
-            "<=": lambda f, v, r=None, m=None: self.getQObject(f, v, r, m, "lte"),
+            "*": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "icontains"),
+            "!": lambda f, v, r=None, m=None: ~self.get_q_object(f, v, r, m, "icontains"),
+            ">": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "gt"),
+            ">=": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "gte"),
+            "<": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "lt"),
+            "<=": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "lte"),
             "in": lambda f, v, r=None, m=None: Q(**{f"{f}__in": v}),
             "not_in": lambda f, v, r=None, m=None: ~Q(**{f"{f}__in": v}),
         }
@@ -40,7 +40,7 @@ class CommonComparison:
             return query
         return ~Q(**{f"{field}": value})
 
-    def getQObject(self, field: str, value=None, request=None, model: Model = None, comparison: str = 'icontains'):
+    def get_q_object(self, field: str, value=None, request=None, model: Model = None, comparison: str = 'icontains'):
         target_model, field_model = self._get_field_model_by_name(model, field)
         if not field_model.is_relation:
             return Q(**{f"{field}__{comparison}": value})
