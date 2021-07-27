@@ -5,6 +5,7 @@ from parameterized import parameterized
 from .models import TestCaseModel
 from .fixtures import RECORDS
 from .test_data import TEST_COMMON
+from .serializer import TestCaseModelSerializer
 
 
 class CommonFilterTests(APITestCase):
@@ -15,17 +16,18 @@ class CommonFilterTests(APITestCase):
             TestCaseModel(**record).save()
 
     @parameterized.expand(TEST_COMMON)
-    def test_common_filter(self, query, expected_response):
+    def test_common_filter(self, query, expected_queryset):
+        expected_data = TestCaseModelSerializer(expected_queryset, many=True).data
         response = self.client.get(self.URL, query, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK,
                          msg=f"Failed on: {query}"
                              f"\nResponse: {response.data}")
-        self.assertEqual(len(response.data), len(expected_response),
+        self.assertEqual(len(response.data), len(expected_data),
                          msg=f"Failed on: {query}"
                              f"\nResponse: {response.data}"
-                             f"\nExpected: {expected_response}")
+                             f"\nExpected: {expected_data}")
         for result in response.data:
-            self.assertIn(result, expected_response,
+            self.assertIn(result, expected_data,
                           msg=f"Failed on: {query}"
                               f"\nResponse: {response.data}"
-                              f"\nExpected: {expected_response}")
+                              f"\nExpected: {expected_data}")

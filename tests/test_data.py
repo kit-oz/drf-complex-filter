@@ -1,59 +1,55 @@
 import json
+from django.db.models import Q
 
-from .serializer import TestCaseModelSerializer
-from .fixtures import RECORDS
-
-serialized_data = TestCaseModelSerializer(RECORDS, many=True).data
+from .models import TestCaseModel
 
 TEST_COMMON = [
     ({"filters": ""},
-     serialized_data),
+     TestCaseModel.objects.all()),
 
     # BASE CHECK FOR ALL FIELD TYPES
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
                                       "operator": "=",
                                       "value": "GROUP1"}})},
-     [r for r in serialized_data if r["group1"] == "GROUP1"]),
+     TestCaseModel.objects.filter(group1="GROUP1")),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "integer",
                                       "operator": "=",
                                       "value": 2}})},
-     [r for r in serialized_data if r["integer"] == 2]),
+     TestCaseModel.objects.filter(integer=2)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "float",
                                       "operator": "=",
                                       "value": 2}})},
-     [r for r in serialized_data if r["float"] == 2]),
+     TestCaseModel.objects.filter(float=2)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "date",
                                       "operator": "=",
                                       "value": "2020-11-01"}})},
-     [r for r in serialized_data if r["date"] == "2020-11-01"]),
+     TestCaseModel.objects.filter(date="2020-11-01")),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "datetime",
                                       "operator": "=",
                                       "value": "2020-10-31T00:03:00"}})},
-     [r for r in serialized_data if r["datetime"] == "2020-10-31T00:03:00"]),
+     TestCaseModel.objects.filter(datetime="2020-10-31T00:03:00")),
 
     # CONTAINS AND NOT CONTAINS FILTERS
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
                                       "operator": "*",
                                       "value": "P1"}})},
-     [r for r in serialized_data
-      if (r["group1"] == "GROUP1" or r["group1"] == "group1")]),
+     TestCaseModel.objects.filter(group1__icontains="P1")),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
                                       "operator": "!",
                                       "value": "P1"}})},
-     [r for r in serialized_data
-      if (r["group1"] != "GROUP1" and r["group1"] != "group1")]),
+     TestCaseModel.objects.exclude(group1__icontains="P1")),
 
     # IN ARRAY AND NOT IN ARRAY
     ({"filters": json.dumps({"type": "operator",
@@ -66,58 +62,56 @@ TEST_COMMON = [
                              "data": {"attribute": "group1",
                                       "operator": "in",
                                       "value": ["GROUP1", "group1"]}})},
-     [r for r in serialized_data
-      if (r["group1"] == "GROUP1" or r["group1"] == "group1")]),
+     TestCaseModel.objects.filter(group1__in=["GROUP1", "group1"])),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "group1",
                                       "operator": "not_in",
                                       "value": ["GROUP1", "group1"]}})},
-     [r for r in serialized_data
-      if (r["group1"] != "GROUP1" and r["group1"] != "group1")]),
+     TestCaseModel.objects.exclude(group1__in=["GROUP1", "group1"])),
 
     # MATH COMPARISON OPERATORS
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "integer",
                                       "operator": "!=",
                                       "value": 2}})},
-     [r for r in serialized_data if r["integer"] != 2]),
+     TestCaseModel.objects.exclude(integer=2)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "integer",
                                       "operator": "*",
                                       "value": 2}})},
-     [r for r in serialized_data if r["integer"] == 2]),
+     TestCaseModel.objects.filter(integer=2)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "integer",
                                       "operator": "!",
                                       "value": 2}})},
-     [r for r in serialized_data if r["integer"] != 2]),
+     TestCaseModel.objects.exclude(integer=2)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "integer",
                                       "operator": ">",
                                       "value": 2}})},
-     [r for r in serialized_data if r["integer"] > 2]),
+     TestCaseModel.objects.filter(integer__gt=2)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "integer",
                                       "operator": ">=",
                                       "value": 2}})},
-     [r for r in serialized_data if r["integer"] >= 2]),
+     TestCaseModel.objects.filter(integer__gte=2)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "integer",
                                       "operator": "<",
                                       "value": 2}})},
-     [r for r in serialized_data if r["integer"] < 2]),
+     TestCaseModel.objects.filter(integer__lt=2)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "integer",
                                       "operator": "<=",
                                       "value": 2}})},
-     [r for r in serialized_data if r["integer"] <= 2]),
+     TestCaseModel.objects.filter(integer__lte=2)),
 
     # LOGICAL AND GROUP
     ({"filters": json.dumps({"type": "and",
@@ -129,8 +123,7 @@ TEST_COMMON = [
                                        "data": {"attribute": "group2",
                                                 "operator": "=",
                                                 "value": "GROUP1"}}]})},
-     [r for r in serialized_data
-      if (r["group1"] == "GROUP3" and r["group2"] == "GROUP1")]),
+     TestCaseModel.objects.filter(group1="GROUP3").filter(group2="GROUP1")),
 
     # LOGICAL OR GROUP
     ({"filters": json.dumps({"type": "or",
@@ -142,8 +135,7 @@ TEST_COMMON = [
                                        "data": {"attribute": "group2",
                                                 "operator": "=",
                                                 "value": "GROUP1"}}]})},
-     [r for r in serialized_data
-      if (r["group1"] == "GROUP3" or r["group2"] == "GROUP1")]),
+     TestCaseModel.objects.filter(Q(group1="GROUP3") | Q(group2="GROUP1"))),
 
     # NESTED GROUPS
     ({"filters": json.dumps({"type": "and",
@@ -162,33 +154,37 @@ TEST_COMMON = [
                                                      "operator": "=",
                                                      "value": "GROUP2"}}
                                        ]}]})},
-     [r for r in serialized_data
-      if (r["group1"] == "GROUP3"
-          and (r["group2"] == "GROUP1" or r["group2"] == "GROUP2"))]),
+     TestCaseModel.objects.filter(group1="GROUP3").filter(Q(group2="GROUP1") | Q(group2="GROUP2"))),
 
     # EQUAL CHECK ON EMPTY VALUE
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "with_empty",
                                       "operator": "=",
                                       "value": ""}})},
-     [r for r in serialized_data if (r["with_empty"] is None or r["with_empty"] == "")]),
+     TestCaseModel.objects.filter(Q(with_empty="") | Q(with_empty__isnull=True))),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "with_empty",
                                       "operator": "!=",
                                       "value": ""}})},
-     [r for r in serialized_data if (r["with_empty"] is not None and r["with_empty"] != "")]),
+     TestCaseModel.objects.filter(with_empty__isnull=False).exclude(with_empty="")),
+
+    ({"filters": json.dumps({"type": "operator",
+                             "data": {"attribute": "with_empty",
+                                      "operator": ">",
+                                      "value": ""}})},
+     TestCaseModel.objects.filter(with_empty__isnull=False).filter(with_empty__gt="")),
 
     # BOOLEAN FIELDS
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "boolean",
                                       "operator": "=",
                                       "value": False}})},
-     [r for r in serialized_data if not r["boolean"]]),
+     TestCaseModel.objects.filter(boolean=False)),
 
     ({"filters": json.dumps({"type": "operator",
                              "data": {"attribute": "boolean",
                                       "operator": "!=",
                                       "value": False}})},
-     [r for r in serialized_data if r["boolean"]]),
+     TestCaseModel.objects.filter(boolean=True)),
 ]
