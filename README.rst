@@ -2,6 +2,11 @@
 Django Rest Framework Complex Filter
 ====================================
 
+
+.. image:: https://codecov.io/gh/kit-oz/drf-complex-filter/branch/main/graph/badge.svg?token=B6Z1LWBXOP
+   :target: https://codecov.io/gh/kit-oz/drf-complex-filter
+
+
 DRF filter for complex queries
 
 Installing
