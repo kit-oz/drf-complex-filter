@@ -15,6 +15,11 @@ class ComplexFilter:
             comparison_module = import_string(comparison_path)()
             self.comparisons.update(comparison_module.get_operators())
 
+        self.functions = {}
+        for function_path in filter_settings["VALUE_FUNCTIONS"]:
+            function_module = import_string(function_path)()
+            self.functions.update(function_module.get_functions())
+
     def generate_from_string(self, filter_string: str, request=None) -> Optional[Q]:
         try:
             filters = json.loads(filter_string)
@@ -38,7 +43,7 @@ class ComplexFilter:
             operator = condition["operator"]
             if operator in self.comparisons:
                 attribute = condition["attribute"].replace(".", "__")
-                value = condition["value"] if "value" in condition else None
+                value = self.get_filter_value(condition, request)
                 result = self.comparisons[operator](attribute, value, request, self.model)
                 (query, annotation) = result if isinstance(result, tuple) else (result, {})
         elif filter_type == "and":
@@ -54,3 +59,16 @@ class ComplexFilter:
                     query = query | sub_query if query else sub_query
                     annotation.update(sub_annotation)
         return query, annotation
+
+    def get_filter_value(self, condition, request=None):
+        if "value" not in condition:
+            return
+
+        value = condition["value"]
+        if isinstance(value, dict) and "func" in value:
+            func = value["func"]
+            if func in self.functions:
+                kwargs = value["kwargs"] if "kwargs" in value else {}
+                return self.functions[func](request=request, model=self.model, **kwargs)
+
+        return value

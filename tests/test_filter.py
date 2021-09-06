@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from django.db.models import Q
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -205,6 +206,21 @@ TEST_CASES = [
                                       "operator": "=",
                                       "value": ""}})},
      TestCaseModel.objects.filter(date__isnull=True)),
+
+    ({"filters": json.dumps({"type": "operator",
+                             "data": {"attribute": "date",
+                                      "operator": "<",
+                                      "value": {"func": "now"}}})},
+     TestCaseModel.objects.filter(date__lt=datetime.now())),
+
+    ({"filters": json.dumps({"type": "operator",
+                             "data": {"attribute": "date",
+                                      "operator": "<",
+                                      "value": {"func": "date",
+                                                "kwargs": {"year": 2020,
+                                                           "month": 10,
+                                                           "day": 15}}}})},
+     TestCaseModel.objects.filter(date__lt=datetime(2020, 10, 15))),
 ]
 
 

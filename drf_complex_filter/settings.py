@@ -5,6 +5,9 @@ DEFAULTS = {
         "drf_complex_filter.comparisons.CommonComparison",
         "drf_complex_filter.comparisons.DynamicComparison",
     ],
+    "VALUE_FUNCTIONS": [
+        "drf_complex_filter.functions.DateFunctions"
+    ],
     "QUERY_PARAMETER": "filters",
     "DEFAULT_LOOKUP_FIELD": None,
 }
