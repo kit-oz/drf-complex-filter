@@ -99,7 +99,7 @@ class YourClassWithOperators:
 
     @staticmethod
     def complex_operator(field: str, value=None, request=None, model: Model = None)
-      return Q(**{f"{field}": value})
+        return Q(**{f"{field}": value})
 ```
 
 Next, specify this class in the configuration.
@@ -127,8 +127,10 @@ class YourClassWithFunctions:
         return {
             "calculate_value": self.calculate_value,
         }
+
+    @staticmethod
     def calculate_value(request, model, my_arg):
-      return str(my_arg)
+        return str(my_arg)
 ```
 
 Then register this class in settings.
@@ -136,7 +138,7 @@ Then register this class in settings.
 ```python
 COMPLEX_FILTER_SETTINGS = {
     "VALUE_FUNCTIONS": [
-        "drf_complex_filter.functions.DateFunctions"
+        "drf_complex_filter.functions.DateFunctions",
         "path.to.your.module.YourClassWithFunctions",
     ],
 }
