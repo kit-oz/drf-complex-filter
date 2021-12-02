@@ -13,7 +13,7 @@ class CommonComparison:
             "=": self.equal,
             "!=": self.not_equal,
             "*": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "icontains"),
-            "!": lambda f, v, r=None, m=None: ~self.get_q_object(f, v, r, m, "icontains"),
+            "!": self.get_not_contains,
             ">": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "gt"),
             ">=": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "gte"),
             "<": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "lt"),
@@ -39,6 +39,11 @@ class CommonComparison:
                 query = query & ~Q(**{f"{field}": ""})
             return query
         return ~Q(**{f"{field}": value})
+
+    def get_not_contains(self, field: str, value=None, request=None, model: Model = None):
+        result = self.get_q_object(field, value, request, model, "icontains")
+        (query, annotation) = result if isinstance(result, tuple) else (result, {})
+        return ~query if query else query, annotation
 
     def get_q_object(self, field: str, value=None, request=None, model: Model = None, comparison: str = 'icontains'):
         target_model, field_model = self._get_field_model_by_name(model, field)
