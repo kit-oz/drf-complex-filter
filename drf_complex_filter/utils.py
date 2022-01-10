@@ -1,5 +1,7 @@
 from typing import Optional
 import json
+import re
+from django.apps import apps
 from django.db.models import Q
 from django.db.models import Model
 from django.utils.module_loading import import_string
@@ -43,7 +45,12 @@ class ComplexFilter:
             operator = condition["operator"]
             if operator in self.comparisons:
                 attribute = condition["attribute"].replace(".", "__")
-                value = self.get_filter_value(condition, request)
+                if '___' in attribute:
+                    value = condition.get("value")
+                    attribute, operator, value = self._calculate_subquery(attribute, operator, value, request)
+                else:
+                    value = self.get_filter_value(condition, request)
+
                 result = self.comparisons[operator](attribute, value, request, self.model)
                 (query, annotation) = result if isinstance(result, tuple) else (result, {})
         elif filter_type == "and":
@@ -72,3 +79,27 @@ class ComplexFilter:
                 return self.functions[func](request=request, model=self.model, **kwargs)
 
         return value
+
+    @staticmethod
+    def _get_model_by_name(model_name):
+        all_models = apps.get_models(include_auto_created=True, include_swapped=True)
+        for model in all_models:
+            if model_name.lower() == model.__name__.lower():
+                return model
+
+    def _calculate_subquery(self, attribute, operator, value, request):
+        """Вычисление внутренних подзапросов отдельным процессом"""
+        main_attribute, sub_attribute = attribute.split('___', maxsplit=1)
+        sub_model_name = main_attribute.rsplit('__', maxsplit=1)[-1]
+        sub_model = self._get_model_by_name(sub_model_name)
+
+        filters = {"type": "operator", "data": {"attribute": sub_attribute, "operator": operator, "value": value}}
+        sub_query, sub_annotation = ComplexFilter(sub_model).generate_query_from_dict(filters, request)
+        sub_queryset = sub_model.objects.annotate(**sub_annotation).filter(sub_query)
+
+        if '__' in main_attribute:
+            sub_model_name = '_' + sub_model_name  # делаем обращение к ID у текущей модели, а не у связанной
+        attribute = main_attribute.replace(sub_model_name, 'id')
+        operator = 'in'
+        value = sub_queryset.values_list('id', flat=True)
+        return attribute, operator, value
