@@ -169,3 +169,38 @@ Where:
 * __kwargs__ - a dictionary with arguments to pass to the method
 
 The value will be calculated before being passed to the operator. That allows you to use the value obtained in this way with any operator that can correctly process it
+
+## Subquery calculation
+
+If you have one big query that needs to be done in chunks (not one big execution, just few small execution in related models),
+You can add construction `RelatedModelName___` to your attribute name in operator,
+After that, this construction is executed in a separate request. 
+
+```python
+
+  operator_filter = {
+    "type": "operator",
+    "data": {
+      "attribute": "RelatedModelName___field_name",
+      "operator": "=",
+      "value": "value_for_compare",
+    }
+  }
+  
+  # if this RelatedModelName.objects.filter(field_name="value_for_compare") return objects with ids `2, 5, 9`,
+  # so this `operator_filter` is equivalent to
+  
+  new_filter = {
+    "type": "operator",
+    "data": {
+      "attribute": "RelatedModelNameField_id",
+      "operator": "in",
+      "value": [2, 5, 9],
+    }
+  }
+  
+  # and have two selects in DB:
+  # `select id from RelatedModelNameField where field_name = 'value_for_compare'`
+  # and `select * from MainTable where RelatedModelNameField_id in (2, 5, 9)`
+
+```
