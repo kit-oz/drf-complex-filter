@@ -47,7 +47,7 @@ class CommonComparison:
 
     def get_q_object(self, field: str, value=None, request=None, model: Model = None, comparison: str = 'icontains'):
         target_model, field_model = self._get_field_model_by_name(model, field)
-        if not field_model.is_relation:
+        if not getattr(field_model, "is_relation", None):
             return Q(**{f"{field}__{comparison}": value})
 
         return self._related_object_lookup(target_model, field, value, comparison)
@@ -59,9 +59,12 @@ class CommonComparison:
         field = None
         current_model = model
         for current_column_name in column_path:
-            field = current_model._meta.get_field(current_column_name)
-            if field.remote_field:
-                current_model = field.remote_field.model
+            try:
+                field = current_model._meta.get_field(current_column_name)
+                if field.remote_field:
+                    current_model = field.remote_field.model
+            except Exception:
+                break
 
         return current_model, field
 
