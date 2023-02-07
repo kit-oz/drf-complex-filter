@@ -29,7 +29,7 @@ Add ``ComplexQueryFilter`` to ``filter_backends``:
 
 And get some records
 
-```HTTP
+```
 
   GET /users?filters={"type":"operator","data":{"attribute":"first_name","operator":"=","value":"John"}}
 ```
@@ -193,14 +193,14 @@ After that, this construction is executed in a separate request.
   new_filter = {
     "type": "operator",
     "data": {
-      "attribute": "RelatedModelNameField_id",
+      "attribute": "RelatedModelName_id",
       "operator": "in",
       "value": [2, 5, 9],
     }
   }
   
   # and have two selects in DB:
-  # `select id from RelatedModelNameField where field_name = 'value_for_compare'`
-  # and `select * from MainTable where RelatedModelNameField_id in (2, 5, 9)`
+  # `select id from RelatedModelName where field_name = 'value_for_compare'`
+  # and `select * from MainTable where RelatedModelName_id in (2, 5, 9)`
 
 ```
