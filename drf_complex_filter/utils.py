@@ -22,6 +22,10 @@ class ComplexFilter:
             function_module = import_string(function_path)()
             self.functions.update(function_module.get_functions())
 
+        self.default_comparison = None
+        if filter_settings["DEFAULT_COMPARISON_FUNCTION"]:
+            self.default_comparison = import_string(filter_settings["DEFAULT_COMPARISON_FUNCTION"])
+
     def generate_from_string(self, filter_string: str, request=None) -> Optional[Q]:
         try:
             filters = json.loads(filter_string)
@@ -43,16 +47,21 @@ class ComplexFilter:
         if filter_type == "operator":
             condition = filters["data"]
             operator = condition["operator"]
-            if operator in self.comparisons:
-                attribute = condition["attribute"].replace(".", "__")
-                if '___' in attribute:
-                    value = condition.get("value")
-                    attribute, operator, value = self._calculate_subquery(attribute, operator, value, request)
-                else:
-                    value = self.get_filter_value(condition, request)
 
+            attribute = condition["attribute"].replace(".", "__")
+            if '___' in attribute:
+                value = condition.get("value")
+                attribute, operator, value = self._calculate_subquery(attribute, operator, value, request)
+            else:
+                value = self.get_filter_value(condition, request)
+
+            if operator in self.comparisons:
                 result = self.comparisons[operator](attribute, value, request, self.model)
-                (query, annotation) = result if isinstance(result, tuple) else (result, {})
+            elif self.default_comparison:
+                result = self.default_comparison(attribute, operator, value, request, self.model)
+            else:
+                raise ValueError(f"Operator '{operator}' not found")
+            (query, annotation) = result if isinstance(result, tuple) else (result, {})
         elif filter_type == "and":
             for filter_data in filters["data"]:
                 sub_query, sub_annotation = self.generate_query_from_dict(filter_data, request)
