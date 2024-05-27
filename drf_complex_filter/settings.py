@@ -10,6 +10,7 @@ DEFAULTS = {
     ],
     "QUERY_PARAMETER": "filters",
     "DEFAULT_LOOKUP_FIELD": None,
+    "DEFAULT_COMPARISON_FUNCTION": None,
 }
 
 COMPLEX_FILTER_SETTINGS = getattr(settings, "COMPLEX_FILTER_SETTINGS", {})
