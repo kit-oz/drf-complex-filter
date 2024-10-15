@@ -1,5 +1,6 @@
-from drf_complex_filter.filters import ComplexQueryFilter
 from rest_framework.viewsets import ReadOnlyModelViewSet
+
+from drf_complex_filter.filters import ComplexQueryFilter
 
 from .models import TestCaseModel
 from .serializer import TestCaseModelSerializer

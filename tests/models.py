@@ -41,7 +41,9 @@ class TestCaseModel(models.Model):
         null=True,
     )
     boolean = models.BooleanField(default=False)
-    simple_lookup = models.ForeignKey(LookupFieldTestModel, on_delete=models.CASCADE, blank=True, null=True)
+    simple_lookup = models.ForeignKey(
+        LookupFieldTestModel, on_delete=models.CASCADE, blank=True, null=True
+    )
     multiple_field_lookup = models.ForeignKey(
         MultipleLookupFieldsTestModel, on_delete=models.CASCADE, blank=True, null=True
     )

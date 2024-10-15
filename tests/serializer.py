@@ -1,8 +1,6 @@
 from rest_framework import serializers
 
-from .models import TestCaseModel
-from .models import LookupFieldTestModel
-from .models import MultipleLookupFieldsTestModel
+from .models import LookupFieldTestModel, MultipleLookupFieldsTestModel, TestCaseModel
 
 
 class LookupFieldTestModelSerializer(serializers.ModelSerializer):

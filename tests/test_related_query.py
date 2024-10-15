@@ -1,14 +1,12 @@
 import json
+
 from django.db.models import Q
-from rest_framework.test import APITestCase
-from rest_framework import status
 from parameterized import parameterized
+from rest_framework import status
+from rest_framework.test import APITestCase
 
-from .models import TestCaseModel
-from .models import LookupFieldTestModel
-from .models import MultipleLookupFieldsTestModel
+from .models import LookupFieldTestModel, MultipleLookupFieldsTestModel, TestCaseModel
 from .serializer import TestCaseModelSerializer
-
 
 TEST_CASES = [
     (
@@ -16,7 +14,11 @@ TEST_CASES = [
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "simple_lookup.lookup_field", "operator": "=", "value": "value1"},
+                    "data": {
+                        "attribute": "simple_lookup.lookup_field",
+                        "operator": "=",
+                        "value": "value1",
+                    },
                 }
             )
         },
@@ -27,7 +29,11 @@ TEST_CASES = [
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "simple_lookup.lookup_field", "operator": "*", "value": "value"},
+                    "data": {
+                        "attribute": "simple_lookup.lookup_field",
+                        "operator": "*",
+                        "value": "value",
+                    },
                 }
             )
         },
@@ -38,7 +44,11 @@ TEST_CASES = [
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "simple_lookup", "operator": "*", "value": "value"},
+                    "data": {
+                        "attribute": "simple_lookup",
+                        "operator": "*",
+                        "value": "value",
+                    },
                 }
             )
         },
@@ -49,7 +59,11 @@ TEST_CASES = [
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "simple_lookup", "operator": "!", "value": "value"},
+                    "data": {
+                        "attribute": "simple_lookup",
+                        "operator": "!",
+                        "value": "value",
+                    },
                 }
             )
         },
@@ -60,7 +74,11 @@ TEST_CASES = [
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "simple_lookup", "operator": ">", "value": "value1"},
+                    "data": {
+                        "attribute": "simple_lookup",
+                        "operator": ">",
+                        "value": "value1",
+                    },
                 }
             )
         },
@@ -71,19 +89,26 @@ TEST_CASES = [
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "simple_lookup", "operator": "<", "value": "value2"},
+                    "data": {
+                        "attribute": "simple_lookup",
+                        "operator": "<",
+                        "value": "value2",
+                    },
                 }
             )
         },
         TestCaseModel.objects.filter(simple_lookup__lookup_field__lt="value2"),
     ),
-
     (
         {
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "multiple_field_lookup", "operator": "*", "value": "value2"},
+                    "data": {
+                        "attribute": "multiple_field_lookup",
+                        "operator": "*",
+                        "value": "value2",
+                    },
                 }
             )
         },
@@ -92,31 +117,37 @@ TEST_CASES = [
             | Q(multiple_field_lookup__lookup_field2__icontains="value2")
         ),
     ),
-
     (
         {
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "multiple_field_lookup", "operator": "*", "value": "value1 value2"},
+                    "data": {
+                        "attribute": "multiple_field_lookup",
+                        "operator": "*",
+                        "value": "value1 value2",
+                    },
                 }
             )
         },
-        TestCaseModel.objects
-        .filter(Q(multiple_field_lookup__lookup_field1__icontains="value1"))
-        .filter(Q(multiple_field_lookup__lookup_field2__icontains="value2")),
+        TestCaseModel.objects.filter(
+            Q(multiple_field_lookup__lookup_field1__icontains="value1")
+        ).filter(Q(multiple_field_lookup__lookup_field2__icontains="value2")),
     ),
-
     (
         {
             "filters": json.dumps(
                 {
                     "type": "operator",
-                    "data": {"attribute": "multiple_field_lookup", "operator": ">", "value": "value2"},
+                    "data": {
+                        "attribute": "multiple_field_lookup",
+                        "operator": ">",
+                        "value": "value2",
+                    },
                 }
             )
         },
-        TestCaseModel.objects.filter(multiple_field_lookup__lookup_field1__gt="value1")
+        TestCaseModel.objects.filter(multiple_field_lookup__lookup_field1__gt="value1"),
     ),
 ]
 
@@ -166,15 +197,23 @@ class RelatedQueryTests(APITestCase):
     def test_related_field(self, query, expected_queryset):
         expected_data = TestCaseModelSerializer(expected_queryset, many=True).data
         response = self.client.get(self.URL, query, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK, msg=f"Failed on: {query}" f"\nResponse: {response}")
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK,
+            msg=f"Failed on: {query}" f"\nResponse: {response}",
+        )
         self.assertEqual(
             len(response.data),
             len(expected_data),
-            msg=f"Failed on: {query}" f"\nResponse: {response.data}" f"\nExpected: {expected_data}",
+            msg=f"Failed on: {query}"
+            f"\nResponse: {response.data}"
+            f"\nExpected: {expected_data}",
         )
         for result in response.data:
             self.assertIn(
                 result,
                 expected_data,
-                msg=f"Failed on: {query}" f"\nResponse: {response.data}" f"\nExpected: {expected_data}",
+                msg=f"Failed on: {query}"
+                f"\nResponse: {response.data}"
+                f"\nExpected: {expected_data}",
             )

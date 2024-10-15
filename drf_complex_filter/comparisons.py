@@ -1,8 +1,6 @@
 from typing import Optional
 
-from django.db.models import Model
-from django.db.models import Q
-from django.db.models import fields
+from django.db.models import Model, Q, fields
 
 from drf_complex_filter.settings import filter_settings
 
@@ -12,7 +10,9 @@ class CommonComparison:
         return {
             "=": self.equal,
             "!=": self.not_equal,
-            "*": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "icontains"),
+            "*": lambda f, v, r=None, m=None: self.get_q_object(
+                f, v, r, m, "icontains"
+            ),
             "!": self.get_not_contains,
             ">": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "gt"),
             ">=": lambda f, v, r=None, m=None: self.get_q_object(f, v, r, m, "gte"),
@@ -26,7 +26,9 @@ class CommonComparison:
         if value == "":
             query = Q(**{f"{field}__isnull": True})
             _, target_field = self._get_field_model_by_name(model, field)
-            if isinstance(target_field, fields.CharField) or isinstance(target_field, fields.TextField):
+            if isinstance(target_field, fields.CharField) or isinstance(
+                target_field, fields.TextField
+            ):
                 query = query | Q(**{f"{field}__exact": ""})
             return query
         return Q(**{f"{field}": value})
@@ -35,17 +37,28 @@ class CommonComparison:
         if value == "":
             query = Q(**{f"{field}__isnull": False})
             _, target_field = self._get_field_model_by_name(model, field)
-            if isinstance(target_field, fields.CharField) or isinstance(target_field, fields.TextField):
+            if isinstance(target_field, fields.CharField) or isinstance(
+                target_field, fields.TextField
+            ):
                 query = query & ~Q(**{f"{field}": ""})
             return query
         return ~Q(**{f"{field}": value})
 
-    def get_not_contains(self, field: str, value=None, request=None, model: Model = None):
+    def get_not_contains(
+        self, field: str, value=None, request=None, model: Model = None
+    ):
         result = self.get_q_object(field, value, request, model, "icontains")
         (query, annotation) = result if isinstance(result, tuple) else (result, {})
         return ~query if query else query, annotation
 
-    def get_q_object(self, field: str, value=None, request=None, model: Model = None, comparison: str = 'icontains'):
+    def get_q_object(
+        self,
+        field: str,
+        value=None,
+        request=None,
+        model: Model = None,
+        comparison: str = "icontains",
+    ):
         target_model, field_model = self._get_field_model_by_name(model, field)
         if not getattr(field_model, "is_relation", None):
             return Q(**{f"{field}__{comparison}": value})

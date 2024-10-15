@@ -1,9 +1,8 @@
-from typing import Optional
 import json
-import re
+from typing import Optional
+
 from django.apps import apps
-from django.db.models import Q
-from django.db.models import Model
+from django.db.models import Model, Q
 from django.utils.module_loading import import_string
 
 from drf_complex_filter.settings import filter_settings
@@ -24,7 +23,9 @@ class ComplexFilter:
 
         self.default_comparison = None
         if filter_settings["DEFAULT_COMPARISON_FUNCTION"]:
-            self.default_comparison = import_string(filter_settings["DEFAULT_COMPARISON_FUNCTION"])
+            self.default_comparison = import_string(
+                filter_settings["DEFAULT_COMPARISON_FUNCTION"]
+            )
 
     def generate_from_string(self, filter_string: str, request=None) -> Optional[Q]:
         try:
@@ -49,28 +50,38 @@ class ComplexFilter:
             operator = condition["operator"]
 
             attribute = condition["attribute"].replace(".", "__")
-            if '___' in attribute:
+            if "___" in attribute:
                 value = condition.get("value")
-                attribute, operator, value = self._calculate_subquery(attribute, operator, value, request)
+                attribute, operator, value = self._calculate_subquery(
+                    attribute, operator, value, request
+                )
             else:
                 value = self.get_filter_value(condition, request)
 
             if operator in self.comparisons:
-                result = self.comparisons[operator](attribute, value, request, self.model)
+                result = self.comparisons[operator](
+                    attribute, value, request, self.model
+                )
             elif self.default_comparison:
-                result = self.default_comparison(attribute, operator, value, request, self.model)
+                result = self.default_comparison(
+                    attribute, operator, value, request, self.model
+                )
             else:
                 raise ValueError(f"Operator '{operator}' not found")
             (query, annotation) = result if isinstance(result, tuple) else (result, {})
         elif filter_type == "and":
             for filter_data in filters["data"]:
-                sub_query, sub_annotation = self.generate_query_from_dict(filter_data, request)
+                sub_query, sub_annotation = self.generate_query_from_dict(
+                    filter_data, request
+                )
                 if sub_query:
                     query = query & sub_query if query else sub_query
                     annotation.update(sub_annotation)
         elif filter_type == "or":
             for filter_data in filters["data"]:
-                sub_query, sub_annotation = self.generate_query_from_dict(filter_data, request)
+                sub_query, sub_annotation = self.generate_query_from_dict(
+                    filter_data, request
+                )
                 if sub_query:
                     query = query | sub_query if query else sub_query
                     annotation.update(sub_annotation)
@@ -98,17 +109,24 @@ class ComplexFilter:
 
     def _calculate_subquery(self, attribute, operator, value, request):
         """Вычисление внутренних подзапросов отдельным процессом"""
-        main_attribute, sub_attribute = attribute.split('___', maxsplit=1)
-        sub_model_name = main_attribute.rsplit('__', maxsplit=1)[-1]
+        main_attribute, sub_attribute = attribute.split("___", maxsplit=1)
+        sub_model_name = main_attribute.rsplit("__", maxsplit=1)[-1]
         sub_model = self._get_model_by_name(sub_model_name)
 
-        filters = {"type": "operator", "data": {"attribute": sub_attribute, "operator": operator, "value": value}}
-        sub_query, sub_annotation = ComplexFilter(sub_model).generate_query_from_dict(filters, request)
+        filters = {
+            "type": "operator",
+            "data": {"attribute": sub_attribute, "operator": operator, "value": value},
+        }
+        sub_query, sub_annotation = ComplexFilter(sub_model).generate_query_from_dict(
+            filters, request
+        )
         sub_queryset = sub_model.objects.annotate(**sub_annotation).filter(sub_query)
 
-        if '__' in main_attribute:
-            sub_model_name = '_' + sub_model_name  # делаем обращение к ID у текущей модели, а не у связанной
-        attribute = main_attribute.replace(sub_model_name, 'id')
-        operator = 'in'
-        value = sub_queryset.values_list('id', flat=True)
+        if "__" in main_attribute:
+            sub_model_name = (
+                "_" + sub_model_name
+            )  # делаем обращение к ID у текущей модели, а не у связанной
+        attribute = main_attribute.replace(sub_model_name, "id")
+        operator = "in"
+        value = sub_queryset.values_list("id", flat=True)
         return attribute, operator, value
