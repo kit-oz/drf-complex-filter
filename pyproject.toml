@@ -1,0 +1,33 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=61.0.0", "setuptools-scm>=8", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drf-complex-filter"
+dynamic = ["version"]
+description = "Declarative filter for Django ORM"
+readme = "README.md"
+authors = [{ name = "Nikita Balobanov", email = "kit-oz@ya.ru" }]
+license = { file = "LICENSE" }
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Framework :: Django",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+]
+keywords = ["django", "django-rest-framework", "django-orm"]
+dependencies = ["django >= 3.0.0"]
+requires-python = ">= 3.6"
+
+[project.optional-dependencies]
+dev = ["djangorestframework~=3.12", "parameterized~=0.7", "mixer~=7.2.2"]
+
+[project.urls]
+Homepage = "https://github.com/kit-oz/drf-complex-filter"
+
+[tool.setuptools_scm]
