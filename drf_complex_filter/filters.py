@@ -9,12 +9,10 @@ class ComplexQueryFilter(BaseFilterBackend):
         filter_string = request.query_params.get(
             filter_settings["QUERY_PARAMETER"], None
         )
-        if not filter_string:
-            return queryset
 
         complex_filter = ComplexFilter(model=queryset.model)
-        query, annotation = complex_filter.generate_from_string(filter_string, request)
-        if query:
-            queryset = queryset.annotate(**annotation).filter(query)
+        queryset = complex_filter.filter_queryset(
+            queryset=queryset, filters=filter_string, request=request
+        )
 
         return queryset

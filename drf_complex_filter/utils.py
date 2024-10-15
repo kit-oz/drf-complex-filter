@@ -2,7 +2,7 @@ import json
 from typing import Optional
 
 from django.apps import apps
-from django.db.models import Model, Q
+from django.db.models import Model, Q, QuerySet
 from django.utils.module_loading import import_string
 
 from drf_complex_filter.settings import filter_settings
@@ -27,11 +27,32 @@ class ComplexFilter:
                 filter_settings["DEFAULT_COMPARISON_FUNCTION"]
             )
 
+    def filter_queryset(
+        self, queryset: QuerySet, filters: dict | str | None, request=None
+    ) -> Optional[Q]:
+        query, annotation = self.generate_query(filters, request)
+        if query:
+            queryset = queryset.annotate(**annotation).filter(query)
+
+        return queryset
+
+    def generate_query(self, filters: dict | str | None, request=None) -> Optional[Q]:
+        if not filters:
+            return (None, None)
+
+        if isinstance(filters, str):
+            try:
+                filters = json.loads(filters)
+            except (TypeError, json.decoder.JSONDecodeError):
+                return (None, None)
+
+        return self.generate_query_from_dict(filters, request)
+
     def generate_from_string(self, filter_string: str, request=None) -> Optional[Q]:
         try:
             filters = json.loads(filter_string)
         except (TypeError, json.decoder.JSONDecodeError):
-            return None
+            return (None, None)
 
         return self.generate_query_from_dict(filters, request)
 
