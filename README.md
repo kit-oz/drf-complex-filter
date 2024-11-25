@@ -1,206 +1,188 @@
 # Django Rest Framework Complex Filter
 
 [![codecov](https://codecov.io/gh/kit-oz/drf-complex-filter/branch/main/graph/badge.svg?token=B6Z1LWBXOP)](https://codecov.io/gh/kit-oz/drf-complex-filter)
+[![PyPI version](https://badge.fury.io/py/drf-complex-filter.svg)](https://badge.fury.io/py/drf-complex-filter)
+[![Python Versions](https://img.shields.io/pypi/pyversions/drf-complex-filter.svg)](https://pypi.org/project/drf-complex-filter/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-DRF filter for complex queries
+A powerful and flexible declarative filter for Django ORM that enables complex query construction through a simple JSON-based API. Perfect for building advanced filtering capabilities in your Django REST Framework applications.
 
-## Installing
+## Features
 
-For installing use ``pip``
+- **Advanced Filtering**: Complex AND/OR operations with nested conditions
+- **Declarative Syntax**: Simple JSON-based query structure
+- **Dynamic Values**: Support for computed values and server-side calculations
+- **Related Model Queries**: Efficient subquery handling for related models
+- **Extensible**: Easy to add custom operators and value functions
+- **Type Safe**: Built-in operator validation
+- **DRF Integration**: Seamless integration with Django REST Framework
+
+## Installation
 
 ```bash
-    pip install drf-complex-filter
+pip install drf-complex-filter
 ```
 
-## Usage
+## Quick Start
 
-Add ``ComplexQueryFilter`` to ``filter_backends``:
+1. Add `ComplexQueryFilter` to your ViewSet:
 
 ```python
+from drf_complex_filter.filters import ComplexQueryFilter
 
-  from drf_complex_filter.filters import ComplexQueryFilter
-
-  class UserViewSet(ModelViewSet):
-      queryset = User.objects.all()
-      serializer_class = UserSerializer
-      filter_backends = [ComplexQueryFilter]
-
+class UserViewSet(ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    filter_backends = [ComplexQueryFilter]
 ```
 
-And get some records
+2. Make API requests with complex filters:
 
+```bash
+# Simple equality filter
+GET /users?filters={"type":"operator","data":{"attribute":"first_name","operator":"=","value":"John"}}
+
+# Complex AND condition
+GET /users?filters={"type":"and","data":[
+    {"type":"operator","data":{"attribute":"age","operator":">","value":18}},
+    {"type":"operator","data":{"attribute":"is_active","operator":"=","value":true}}
+]}
 ```
 
-  GET /users?filters={"type":"operator","data":{"attribute":"first_name","operator":"=","value":"John"}}
-```
+## Filter Types
 
-## Filter operator
-
-Operator may be one of three types
-
+### 1. Simple Operator
 ```python
-
-  # Will return Q(field_name=value_for_compare)
-  operator_filter = {
+{
     "type": "operator",
     "data": {
-      "attribute": "field_name",
-      "operator": "=",
-      "value": "value_for_compare",
+        "attribute": "field_name",
+        "operator": "=",
+        "value": "value_to_compare"
     }
-  }
-
-  # Will combine through AND all operators passed in "data"
-  and_filter = {
-    "type": "and",
-    "data": []
-  }
-
-  # Will combine through OR all operators passed in "data"
-  or_filter = {
-    "type": "or",
-    "data": []
-  }
-
+}
 ```
 
-## Lookup operators
-
-There are several basic operators in the package, but you are free to replace or expand this list.
-
-### Existing operators
-
-Operator label | Query operator
--------------- | --------------
-Is | =
-Is not | !=
-Case-insensitive contains | *
-Case-insensitive not contains | !
-Greater | >
-Greater than or is | >=
-Less | <
-Less than or is | <=
-Value in list | in
-Value not in list | not_in
-Current user | me
-Not current user | not_me
-
-### Adding operators
-
-First, create a class containing your operators. It should contain at least a "get_operators" method that returns a dictionary with your operators.
-
+### 2. AND Operator
 ```python
-class YourClassWithOperators:
+{
+    "type": "and",
+    "data": [
+        # List of operators to combine with AND
+    ]
+}
+```
+
+### 3. OR Operator
+```python
+{
+    "type": "or",
+    "data": [
+        # List of operators to combine with OR
+    ]
+}
+```
+
+## Available Operators
+
+| Operator | Description | Symbol |
+|----------|-------------|---------|
+| Is | Equality | = |
+| Is not | Inequality | != |
+| Contains | Case-insensitive contains | * |
+| Not contains | Case-insensitive not contains | ! |
+| Greater | Greater than | > |
+| Greater or equal | Greater than or equal | >= |
+| Less | Less than | < |
+| Less or equal | Less than or equal | <= |
+| In | Value in list | in |
+| Not in | Value not in list | not_in |
+| Current user | Current authenticated user | me |
+| Not current user | Not current authenticated user | not_me |
+
+## Advanced Features
+
+### Custom Operators
+
+1. Create your operator class:
+```python
+class CustomOperators:
     def get_operators(self):
         return {
-            "simple_operator": lambda f, v, r, m: Q(**{f"{f}": v}),
-            "complex_operator": self.complex_operator,
+            "custom_op": lambda f, v, r, m: Q(**{f"{f}__custom": v}),
         }
-
-    @staticmethod
-    def complex_operator(field: str, value=None, request=None, model: Model = None)
-        return Q(**{f"{field}": value})
 ```
 
-Next, specify this class in the configuration.
-
+2. Register in settings:
 ```python
 COMPLEX_FILTER_SETTINGS = {
     "COMPARISON_CLASSES": [
         "drf_complex_filter.comparisons.CommonComparison",
-        "drf_complex_filter.comparisons.DynamicComparison",
-        "path.to.your.module.YourClassWithOperators",
+        "path.to.CustomOperators",
     ],
 }
 ```
 
-You can now use these operators to filter models.
+### Dynamic Values
 
-## Computed value
-
-Sometimes you need to get the value dynamically on the server side instead of writing it directly to the filter.
-To do this, you can create a class containing the "get_functions" method.
-
+1. Create value functions:
 ```python
-class YourClassWithFunctions:
+class CustomFunctions:
     def get_functions(self):
         return {
-            "calculate_value": self.calculate_value,
+            "current_time": lambda request, model: timezone.now(),
         }
-
-    @staticmethod
-    def calculate_value(request, model, my_arg):
-        return str(my_arg)
 ```
 
-Then register this class in settings.
-
+2. Register in settings:
 ```python
 COMPLEX_FILTER_SETTINGS = {
     "VALUE_FUNCTIONS": [
         "drf_complex_filter.functions.DateFunctions",
-        "path.to.your.module.YourClassWithFunctions",
+        "path.to.CustomFunctions",
     ],
 }
 ```
 
-And create an operator with a value like this:
-
+3. Use in filters:
 ```python
-
-  value = {
-    "func": "name_of_func",
-    "kwargs": { "my_arg": "value_of_my_arg" },
-  }
-
-  operator_filter = {
+{
     "type": "operator",
     "data": {
-      "attribute": "field_name",
-      "operator": "=",
-      "value": value,
+        "attribute": "created_at",
+        "operator": ">",
+        "value": {
+            "func": "current_time",
+            "kwargs": {}
+        }
     }
-  }
+}
 ```
 
-Where:
+### Related Model Queries
 
-* __func__ - the name of the method to call
-* __kwargs__ - a dictionary with arguments to pass to the method
-
-The value will be calculated before being passed to the operator. That allows you to use the value obtained in this way with any operator that can correctly process it
-
-## Subquery calculation
-
-If you have one big query that needs to be done in chunks (not one big execution, just few small execution in related models),
-You can add construction `RelatedModelName___` to your attribute name in operator,
-After that, this construction is executed in a separate request. 
-
+Use `ModelName___` prefix for efficient subqueries:
 ```python
-
-  operator_filter = {
+{
     "type": "operator",
     "data": {
-      "attribute": "RelatedModelName___field_name",
-      "operator": "=",
-      "value": "value_for_compare",
+        "attribute": "Profile___is_verified",
+        "operator": "=",
+        "value": true
     }
-  }
-  
-  # if this RelatedModelName.objects.filter(field_name="value_for_compare") return objects with ids `2, 5, 9`,
-  # so this `operator_filter` is equivalent to
-  
-  new_filter = {
-    "type": "operator",
-    "data": {
-      "attribute": "RelatedModelName_id",
-      "operator": "in",
-      "value": [2, 5, 9],
-    }
-  }
-  
-  # and have two selects in DB:
-  # `select id from RelatedModelName where field_name = 'value_for_compare'`
-  # and `select * from MainTable where RelatedModelName_id in (2, 5, 9)`
-
+}
 ```
+
+## Requirements
+
+- Python >= 3.6
+- Django >= 3.0.0
+- Django REST Framework
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
