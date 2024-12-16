@@ -1,4 +1,4 @@
-# Django Rest Framework Complex Filter
+# Django Complex Filter
 
 [![codecov](https://codecov.io/gh/kit-oz/drf-complex-filter/branch/main/graph/badge.svg?token=B6Z1LWBXOP)](https://codecov.io/gh/kit-oz/drf-complex-filter)
 [![PyPI version](https://badge.fury.io/py/drf-complex-filter.svg)](https://badge.fury.io/py/drf-complex-filter)
