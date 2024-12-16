@@ -1,7 +1,8 @@
 # Django Complex Filter
 
-[![codecov](https://codecov.io/gh/kit-oz/drf-complex-filter/branch/main/graph/badge.svg?token=B6Z1LWBXOP)](https://codecov.io/gh/kit-oz/drf-complex-filter)
+[![Published on Django Packages](https://img.shields.io/badge/Published%20on-Django%20Packages-0c3c26)](https://djangopackages.org/packages/p/drf-complex-filter/)
 [![PyPI version](https://badge.fury.io/py/drf-complex-filter.svg)](https://badge.fury.io/py/drf-complex-filter)
+[![codecov](https://codecov.io/gh/kit-oz/drf-complex-filter/branch/main/graph/badge.svg?token=B6Z1LWBXOP)](https://codecov.io/gh/kit-oz/drf-complex-filter)
 [![Python Versions](https://img.shields.io/pypi/pyversions/drf-complex-filter.svg)](https://pypi.org/project/drf-complex-filter/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
