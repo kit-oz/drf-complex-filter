@@ -53,3 +53,9 @@ class ComplexQueryFilter:
         )
 
         return queryset
+
+    def get_schema_operation_parameters(self, view):
+        """
+        Define the schema operation parameters for inclusion in the OpenAPI schema.
+        """
+        return []
